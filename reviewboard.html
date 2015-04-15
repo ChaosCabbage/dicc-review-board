@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+	<head>
+		<title>The DMK Review Board</title>
+
+        <script>
+            var urlParams;
+            (window.onpopstate = function () {
+                var match,
+                    pl = /\+/g,  // Regex for replacing addition symbol with a space
+                    search = /([^&=]+)=?([^&]*)/g,
+                    decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+                    query = window.location.search.substring(1);
+
+                urlParams = {};
+                while (match = search.exec(query))
+                    urlParams[decode(match[1])] = decode(match[2]);
+            })();
+
+            var user = urlParams.user || "Guest";
+
+            var diccs = [JSON.stringify(
+                {
+                    "number": "119490",
+                    "author": "chb",
+                    "description": "Parameters that are needed for automatic tool axis limits"
+                })];
+
+        </script>
+
+        <script src="ElmReviewBoard.js">
+        </script>
+
+	</head>
+	<body>
+        <script>
+            Elm.fullscreen(Elm.ReviewBoard, { username: user, diccs: diccs });
+        </script>
+	</body>
+</html>
