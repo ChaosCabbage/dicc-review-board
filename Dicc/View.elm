@@ -8,6 +8,9 @@ import Graphics.Collage (..)
 import List
 import Text
 import Color
+import Styles.Text
+
+textFormat = Styles.Text.format 12
 
 view : DM.Model -> Element
 view model =
@@ -40,15 +43,15 @@ doReviewText alreadyReviewing =
     "Start reviewing this"
 
 viewUsername : DM.User -> Element
-viewUsername user = Text.plainText user
+viewUsername user = textFormat user
 
 viewNumber : String -> Element
-viewNumber n = Text.plainText n
+viewNumber n = textFormat n
 
 viewDescription : String -> Element
 viewDescription desc =
   let
-    text = Text.plainText desc
+    text = textFormat desc
     w = min 200 (widthOf text)
   in
     width w text
