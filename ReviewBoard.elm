@@ -11,6 +11,7 @@ import List
 import Time
 import Result
 import String
+import Styles.Text
 
 -- PORTS
 port username : Signal String
@@ -26,17 +27,13 @@ port diccs : Signal (List String)
 --     (\(ls, f) -> ls) <~ diccsPerSecond
 
 
-decodeToInt : String -> Decoder Int
-decodeToInt number =
-  case (String.toInt number) of
-    Ok value -> int
-    Err e -> fail e
 
+welcome name = Styles.Text.format 50 ("Welcome, " ++ name)
 
 diccoder : Decoder Dicc.Model.Model
 diccoder =
   object3 Dicc.Model.init
-    ("number" := int)
+    ("number" := string)
     ("author" := string)
     ("description" := string)
 
@@ -53,8 +50,9 @@ decode dicclist =
       ) results
 
 
-multiView diccs undecoded =
+multiView diccs undecoded user =
   flow down [
+    (welcome user),
     --(flow down (List.map Text.asText undecoded)),
     (flow down (diccs))
   ]
@@ -64,4 +62,4 @@ main =
   let
     decodedDiccs = decode <~ diccs
   in
-    multiView <~ decodedDiccs ~ diccs
+    multiView <~ decodedDiccs ~ diccs ~ username

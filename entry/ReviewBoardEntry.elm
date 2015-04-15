@@ -7,6 +7,7 @@ import Signal (..)
 import Window
 import List
 import Keyboard
+import Styles.Text
 
 -- MODEL
 
@@ -22,16 +23,7 @@ updateChannel = channel Submit
 -- VIEW
 
 format: Float -> String -> Element
-format h s = Text.fromString s
-              |> Text.style (textFormat h)
-              |> Text.centered
-
-textFormat : Float -> Text.Style
-textFormat h =
-  let default = Text.defaultStyle
-  in
-    { default | typeface <- ["Century Gothic", "arial", "sans-serif"],
-                      height <- Just h}
+format = Styles.Text.format
 
 welcome = format 50 "Welcome to the DMK Review Board"
 who = format 40 "Who are you?"

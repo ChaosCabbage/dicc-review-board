@@ -42,8 +42,8 @@ doReviewText alreadyReviewing =
 viewUsername : DM.User -> Element
 viewUsername user = Text.plainText user
 
-viewNumber : Int -> Element
-viewNumber n = Text.plainText (toString n)
+viewNumber : String -> Element
+viewNumber n = Text.plainText n
 
 viewDescription : String -> Element
 viewDescription desc =

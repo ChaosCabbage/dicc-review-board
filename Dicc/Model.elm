@@ -5,13 +5,13 @@ import List
 type alias User = String
 
 type alias Model = {
-  number: Int,
+  number: String,
   author: User,
   description: String,
   reviews: List User
 }
 
-init : Int -> User -> String -> Model
+init : String -> User -> String -> Model
 init number author description =
   {
     number = number,
