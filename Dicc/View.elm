@@ -10,18 +10,42 @@ import Text
 import Color
 import Styles.Text
 
-textFormat = Styles.Text.format 12
+textFormat = Styles.Text.format 20
 
-view : DM.Model -> Element
-view model =
-  flowMidline (List.intersperse verticalSpacer [
-    viewUsername model.author,
-    viewNumber model.number,
-    viewDescription model.description,
-    viewReviews model.reviews
-  ])
-  |> (\e -> container 500 (12 + (heightOf e)) midLeft e)
-  |> color Color.lightOrange
+background = Color.white
+
+containLeft w element =
+  container w (12 + (heightOf element)) midLeft element
+
+view : DM.Model -> (Int,Int) -> Element
+view model (w,h) =
+
+  let reviews = flowMidline [
+        verticalSpacer,
+        viewReviews model.reviews
+      ]
+
+      identifiers = flowMidline [
+        viewUsername model.author,
+        verticalSpacer,
+        viewNumber model.number
+      ]
+
+      remainingWidth = w - (widthOf reviews) - (widthOf identifiers) - 20
+
+      description =
+        if (remainingWidth < 0) then
+          empty
+        else
+          flowMidline [
+            verticalSpacer,
+            viewDescription model.description |> containLeft remainingWidth
+          ]
+
+
+  in flowMidline [identifiers, description, reviews]
+    |> containLeft w
+    |> color background
 
 
 lineStyle =
@@ -43,18 +67,13 @@ doReviewText alreadyReviewing =
     "Start reviewing this"
 
 viewUsername : DM.User -> Element
-viewUsername user = textFormat user
+viewUsername user = textFormat user |> width 60
 
 viewNumber : String -> Element
-viewNumber n = textFormat n
+viewNumber n = textFormat n |> width 80
 
 viewDescription : String -> Element
-viewDescription desc =
-  let
-    text = textFormat desc
-    w = min 200 (widthOf text)
-  in
-    width w text
+viewDescription desc = textFormat desc
 
 viewReviews : List String -> Element
 viewReviews reviews =

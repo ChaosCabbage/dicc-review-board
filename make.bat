@@ -1,0 +1,1 @@
+elm-make ReviewBoard.elm --output ElmReviewBoard.js

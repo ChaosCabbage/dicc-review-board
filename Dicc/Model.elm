@@ -20,6 +20,6 @@ init number author description =
     reviews = []
   }
 
-addReview : User ->Model -> Model
+addReview : User -> Model -> Model
 addReview reviewer model =
   { model | reviews <- reviewer :: (model.reviews) }

@@ -2,64 +2,53 @@ module ReviewBoard (main) where
 
 import Dicc.View
 import Dicc.Model
+import Dicc.Parse
 import Graphics.Element (..)
 import Signal (..)
 import Text
-import Json.Decode (..)
 import Debug
 import List
 import Time
 import Result
 import String
 import Styles.Text
+import Window
 
 -- PORTS
 port username : Signal String
 
 port diccs : Signal (List String)
 
+formatRight string textHeight screenWidth =
+  let text = Styles.Text.format textHeight string
+  in container screenWidth (heightOf text) midRight text
 
--- testDiccs =
---   let diccsPerSecond = map2 (,)
---         (constant ["{\"number\":119490,\"author\":\"chb\",\"description\":\"Parameters that are needed for automatic tool axis limits\"}"] )
---         (Time.fps 1)
---   in
---     (\(ls, f) -> ls) <~ diccsPerSecond
+welcome name w =
+  formatRight ("Welcome, " ++ name) 50 w
 
-
-
-welcome name = Styles.Text.format 50 ("Welcome, " ++ name)
-
-diccoder : Decoder Dicc.Model.Model
-diccoder =
-  object3 Dicc.Model.init
-    ("number" := string)
-    ("author" := string)
-    ("description" := string)
-
-
-decode : List String -> List Element
-decode dicclist =
+decode : List String -> (Int,Int) -> List Element
+decode dicclist dimensions =
   let
-    results = List.map (decodeString diccoder) dicclist
+    results = List.map (Dicc.Parse.parse) dicclist
       |> Debug.watch "decoding"
   in List.map (\b ->
         case b of
-          Ok v -> Dicc.View.view v
+          Ok v -> Dicc.View.view v dimensions
           Err e -> Text.asText ("Error!!! " ++ e)
       ) results
 
 
-multiView diccs undecoded user =
+multiView diccs undecoded user w =
   flow down [
-    (welcome user),
-    --(flow down (List.map Text.asText undecoded)),
+    (welcome user w),
+    (spacer w 20),
+    (formatRight "Reviews: " 25 w),
     (flow down (diccs))
   ]
 
 
 main =
   let
-    decodedDiccs = decode <~ diccs
+    decodedDiccs = decode <~ diccs ~ Window.dimensions
   in
-    multiView <~ decodedDiccs ~ diccs ~ username
+    multiView <~ decodedDiccs ~ diccs ~ username ~ Window.width
