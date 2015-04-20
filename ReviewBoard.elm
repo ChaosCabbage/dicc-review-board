@@ -19,9 +19,12 @@ port username : Signal String
 
 port diccs : Signal (List String)
 
-formatRight string textHeight screenWidth =
+formatRight = format midRight
+formatLeft = format midLeft
+
+format position string textHeight screenWidth =
   let text = Styles.Text.format textHeight string
-  in container screenWidth (heightOf text) midRight text
+  in container screenWidth (heightOf text) position text
 
 welcome name w =
   formatRight ("Welcome, " ++ name) 50 w
@@ -49,17 +52,26 @@ viewDiccList diccs (w,h) =
   let view dicc = Dicc.View.view dicc (w,h)
   in
     flow down [
-      (formatRight "Reviews: " 25 w),
+      (format midRight "Reviews: " 25 w),
       (flow down (List.map view diccs))
     ]
 
 multiView diccs user (w,h) =
   let view dicc = Dicc.View.view dicc (w,h)
+      (yours,theirs) = splitByAuthor user diccs
+
+      viewList name diccs =
+        flow down [
+          (spacer w 20),
+          (format midLeft name 30 w),
+          (viewDiccList diccs (w,h))
+        ]
   in
     flow down [
       (welcome user w),
       (spacer w 20),
-      (viewDiccList diccs (w,h))
+      (viewList "Your DICCs" yours),
+      (viewList "Other DICCs" theirs)
     ]
 
 

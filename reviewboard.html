@@ -17,7 +17,7 @@
                     urlParams[decode(match[1])] = decode(match[2]);
             })();
 
-            var user = urlParams.user || "Guest";
+            var user = urlParams.user || "PMC";
 
             var diccs = [JSON.stringify(
                 {
@@ -32,6 +32,21 @@
 						}
 					},
 					"reviews": ["pmc", "swm"],
+					"dateModified": "2015-04-20T14:10:42.634Z"
+				}),
+				JSON.stringify(
+				{
+					"dicc": {
+						"number": "123456",
+						"author": "PMC",
+						"description": "Remove all the code",
+						"details": {
+							"symptom": "Code causes problems.",
+							"problem": "We have code.",
+							"solution": "The code needs to go."
+						}
+					},
+					"reviews": ["jiy", "bam"],
 					"dateModified": "2015-04-20T14:10:42.634Z"
 				})];
 
