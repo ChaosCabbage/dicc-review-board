@@ -8347,6 +8347,7 @@ Elm.ReviewBoard.make = function (_elm) {
    $moduleName = "ReviewBoard",
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
+   $Dicc$Model = Elm.Dicc.Model.make(_elm),
    $Dicc$Parse = Elm.Dicc.Parse.make(_elm),
    $Dicc$View = Elm.Dicc.View.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
@@ -8354,33 +8355,41 @@ Elm.ReviewBoard.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Styles$Text = Elm.Styles.Text.make(_elm),
-   $Text = Elm.Text.make(_elm),
    $Window = Elm.Window.make(_elm);
-   var decode = F2(function (dicclist,
-   dimensions) {
+   var splitByAuthor = function (author) {
+      return $List.partition(function (d) {
+         return _U.eq(d.author,
+         author);
+      });
+   };
+   var decode = function (dicclist) {
       return function () {
          var results = $Debug.watch("decoding")(A2($List.map,
          $Dicc$Parse.parse,
          dicclist));
-         return A2($List.map,
-         function (b) {
+         var goodResults = A2($List.filter,
+         function (dicc) {
             return function () {
-               switch (b.ctor)
-               {case "Err":
-                  return $Text.asText(A2($Basics._op["++"],
-                    "Error!!! ",
-                    b._0));
-                  case "Ok":
-                  return A2($Dicc$View.view,
-                    b._0,
-                    dimensions);}
+               switch (dicc.ctor)
+               {case "Err": return false;
+                  case "Ok": return true;}
                _U.badCase($moduleName,
-               "between lines 35 and 38");
+               "between lines 36 and 39");
             }();
          },
          results);
+         return A2($List.map,
+         function (_v3) {
+            return function () {
+               switch (_v3.ctor)
+               {case "Ok": return _v3._0;}
+               _U.badCase($moduleName,
+               "on line 42, column 26 to 27");
+            }();
+         },
+         goodResults);
       }();
-   });
+   };
    var formatRight = F3(function (string,
    textHeight,
    screenWidth) {
@@ -8404,23 +8413,64 @@ Elm.ReviewBoard.make = function (_elm) {
       50,
       w);
    });
-   var multiView = F4(function (diccs,
-   undecoded,
+   var viewDiccList = F2(function (diccs,
+   _v6) {
+      return function () {
+         switch (_v6.ctor)
+         {case "_Tuple2":
+            return function () {
+                 var view = function (dicc) {
+                    return A2($Dicc$View.view,
+                    dicc,
+                    {ctor: "_Tuple2"
+                    ,_0: _v6._0
+                    ,_1: _v6._1});
+                 };
+                 return A2($Graphics$Element.flow,
+                 $Graphics$Element.down,
+                 _L.fromArray([A3(formatRight,
+                              "Reviews: ",
+                              25,
+                              _v6._0)
+                              ,A2($Graphics$Element.flow,
+                              $Graphics$Element.down,
+                              A2($List.map,view,diccs))]));
+              }();}
+         _U.badCase($moduleName,
+         "between lines 49 and 54");
+      }();
+   });
+   var multiView = F3(function (diccs,
    user,
-   w) {
-      return A2($Graphics$Element.flow,
-      $Graphics$Element.down,
-      _L.fromArray([A2(welcome,user,w)
-                   ,A2($Graphics$Element.spacer,
-                   w,
-                   20)
-                   ,A3(formatRight,
-                   "Reviews: ",
-                   25,
-                   w)
-                   ,A2($Graphics$Element.flow,
-                   $Graphics$Element.down,
-                   diccs)]));
+   _v10) {
+      return function () {
+         switch (_v10.ctor)
+         {case "_Tuple2":
+            return function () {
+                 var view = function (dicc) {
+                    return A2($Dicc$View.view,
+                    dicc,
+                    {ctor: "_Tuple2"
+                    ,_0: _v10._0
+                    ,_1: _v10._1});
+                 };
+                 return A2($Graphics$Element.flow,
+                 $Graphics$Element.down,
+                 _L.fromArray([A2(welcome,
+                              user,
+                              _v10._0)
+                              ,A2($Graphics$Element.spacer,
+                              _v10._0,
+                              20)
+                              ,A2(viewDiccList,
+                              diccs,
+                              {ctor: "_Tuple2"
+                              ,_0: _v10._0
+                              ,_1: _v10._1})]));
+              }();}
+         _U.badCase($moduleName,
+         "between lines 57 and 63");
+      }();
    });
    var diccs = _P.portIn("diccs",
    _P.incomingSignal(function (v) {
@@ -8435,20 +8485,16 @@ Elm.ReviewBoard.make = function (_elm) {
       v);
    }));
    var main = function () {
-      var decodedDiccs = A2($Signal._op["~"],
-      A2($Signal._op["<~"],
+      var decodedDiccs = A2($Signal._op["<~"],
       decode,
-      diccs),
-      $Window.dimensions);
+      diccs);
       return A2($Signal._op["~"],
-      A2($Signal._op["~"],
       A2($Signal._op["~"],
       A2($Signal._op["<~"],
       multiView,
       decodedDiccs),
-      diccs),
       username),
-      $Window.width);
+      $Window.dimensions);
    }();
    _elm.ReviewBoard.values = {_op: _op
                              ,main: main};

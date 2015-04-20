@@ -26,29 +26,45 @@ formatRight string textHeight screenWidth =
 welcome name w =
   formatRight ("Welcome, " ++ name) 50 w
 
-decode : List String -> (Int,Int) -> List Element
-decode dicclist dimensions =
+decode : List String -> List Dicc.Model.Model
+decode dicclist =
   let
     results = List.map (Dicc.Parse.parse) dicclist
       |> Debug.watch "decoding"
-  in List.map (\b ->
-        case b of
-          Ok v -> Dicc.View.view v dimensions
-          Err e -> Text.asText ("Error!!! " ++ e)
+
+    goodResults = List.filter (\dicc ->
+        case dicc of
+          Ok _ -> True
+          Err _ -> False
       ) results
 
+  in
+    List.map (\(Ok x) -> x) goodResults
 
-multiView diccs undecoded user w =
-  flow down [
-    (welcome user w),
-    (spacer w 20),
-    (formatRight "Reviews: " 25 w),
-    (flow down (diccs))
-  ]
+
+splitByAuthor author =
+  List.partition (\d -> d.author == author)
+
+viewDiccList diccs (w,h) =
+  let view dicc = Dicc.View.view dicc (w,h)
+  in
+    flow down [
+      (formatRight "Reviews: " 25 w),
+      (flow down (List.map view diccs))
+    ]
+
+multiView diccs user (w,h) =
+  let view dicc = Dicc.View.view dicc (w,h)
+  in
+    flow down [
+      (welcome user w),
+      (spacer w 20),
+      (viewDiccList diccs (w,h))
+    ]
 
 
 main =
   let
-    decodedDiccs = decode <~ diccs ~ Window.dimensions
+    decodedDiccs = decode <~ diccs
   in
-    multiView <~ decodedDiccs ~ diccs ~ username ~ Window.width
+    multiView <~ decodedDiccs ~ username ~ Window.dimensions
