@@ -13,6 +13,8 @@ import Result
 import String
 import Styles.Text
 import Window
+import CompareUsers
+import FullScreenBox
 
 -- PORTS
 port username : Signal String
@@ -46,7 +48,8 @@ decode dicclist =
 
 
 splitByAuthor author =
-  List.partition (\d -> d.author == author)
+  List.partition (.author >> (CompareUsers.same author))
+
 
 viewDiccList diccs (w,h) =
   let view dicc = Dicc.View.view dicc (w,h)
@@ -56,27 +59,41 @@ viewDiccList diccs (w,h) =
       (flow down (List.map view diccs))
     ]
 
+
 multiView diccs user (w,h) =
   let view dicc = Dicc.View.view dicc (w,h)
       (yours,theirs) = splitByAuthor user diccs
 
+      listWidth = max 300 ((w*3) // 4)
+
       viewList name diccs =
         flow down [
-          (spacer w 20),
-          (format midLeft name 30 w),
-          (viewDiccList diccs (w,h))
+          (spacer listWidth 20),
+          (format midLeft name 30 listWidth),
+          (viewDiccList diccs (listWidth,h))
         ]
   in
     flow down [
       (welcome user w),
       (spacer w 20),
-      (viewList "Your DICCs" yours),
-      (viewList "Other DICCs" theirs)
+      container w h midTop (flow down [
+        (viewList "Your DICCs" yours),
+        (viewList "Other DICCs" theirs)
+      ])
     ]
 
 
-main =
-  let
-    decodedDiccs = decode <~ diccs
-  in
-    multiView <~ decodedDiccs ~ username ~ Window.dimensions
+
+-- Wiring
+
+decodedDiccs : Signal (List Dicc.Model.Model)
+decodedDiccs = decode <~ diccs
+
+mainView : Signal Element
+mainView = multiView <~ decodedDiccs ~ username ~ Window.dimensions
+
+mainViewWithOverlay : Element -> Element -> Element
+mainViewWithOverlay page overlay = layers [page, overlay]
+
+main : Signal Element
+main = mainViewWithOverlay <~ mainView ~ FullScreenBox.viewSignal

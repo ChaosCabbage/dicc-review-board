@@ -1,6 +1,7 @@
 module Dicc.View (view) where
 
 import Dicc.Model as DM
+import Dicc.ReviewButton
 import ElementUtils (flowMidline)
 
 import Graphics.Element (..)
@@ -22,7 +23,7 @@ view model (w,h) =
 
   let reviews = flowMidline [
         verticalSpacer,
-        viewReviews model.reviews
+        viewReviews model
       ]
 
       identifiers = flowMidline [
@@ -75,7 +76,9 @@ viewNumber n = textFormat n |> width 80
 viewDescription : String -> Element
 viewDescription desc = textFormat desc
 
-viewReviews : List String -> Element
-viewReviews reviews =
-  List.map (Text.fromString >> Text.centered >> width 50) reviews
+viewReviews : DM.Model -> Element
+viewReviews dicc =
+  let viewReview = Dicc.ReviewButton.viewReadButton dicc
+  in
+    List.map (Dicc.ReviewButton.viewReadButton dicc) dicc.reviews
     |> flow down
